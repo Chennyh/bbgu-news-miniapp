@@ -7,7 +7,7 @@
 			</text>
 		</view>
 		<view class="button-demo">
-			<u-button :ripple="true">按钮组件演示</u-button>
+			<u-button :ripple="true" @click="onClick">按钮组件演示</u-button>
 		</view>
 		<view class="link-demo">
 			<u-link :color="$u.color['primary']" :under-line="true" href="http://www.uviewui.com">跳转uView文档：www.uviewui.com</u-link>
@@ -16,6 +16,10 @@
 </template>
 
 <script>
+	import {
+		getUser
+	} from '@/common/api/user.js'
+
 	export default {
 		data() {
 			return {
@@ -26,7 +30,12 @@
 
 		},
 		methods: {
-
+			onClick() {
+				this.$u.toast('按钮被点击')
+				getUser(1).then(response => {
+					console.log(response);
+				})
+			}
 		}
 	}
 </script>
@@ -53,16 +62,16 @@
 		display: flex;
 		justify-content: center;
 	}
-	
+
 	.title {
 		font-size: 28rpx;
 		color: $u-content-color;
 	}
-	
+
 	.button-demo {
 		margin-top: 80rpx;
 	}
-	
+
 	.link-demo {
 		margin-top: 80rpx;
 	}

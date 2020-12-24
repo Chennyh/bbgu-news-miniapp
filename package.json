@@ -1,0 +1,12 @@
+{
+	"uni-app": {
+		"scripts": {
+			"bbgu-news-weapp": {
+				"title": "We湾大",
+				"env": {
+					"UNI_PLATFORM": "mp-weixin"
+				}
+			}
+		}
+	}
+}
