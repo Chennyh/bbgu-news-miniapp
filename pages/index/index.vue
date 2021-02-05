@@ -1,6 +1,6 @@
 <template>
 	<view class="content">
-		<image class="logo" src="/static/logo.png"></image>
+		<image class="logo" src="/static/index-selected.png"></image>
 		<view class="text-area">
 			<text class="title">
 				uView - 多平台快速开发的UI框架
@@ -16,26 +16,18 @@
 </template>
 
 <script>
-	import {
-		getUser
-	} from '@/common/api/user.js'
-
 	export default {
 		data() {
 			return {
 				title: 'Hello'
+				
 			}
 		},
 		onLoad() {
 
 		},
 		methods: {
-			onClick() {
-				this.$u.toast('按钮被点击')
-				getUser(1).then(response => {
-					console.log(response);
-				})
-			}
+
 		}
 	}
 </script>

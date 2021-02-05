@@ -1,8 +1,17 @@
 import request from '../request.js'
 
-export function getUser(id) {
+export function login(data) {
 	return request.middleware({
-		url: '/user/' + id,
-		method: 'GET'
+		url: '/wx/login',
+		method: 'POST',
+		data: data
+	})
+}
+
+export function update(data) {
+	return request.middleware({
+		url: '/wx',
+		method: 'PUT',
+		data: data
 	})
 }

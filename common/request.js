@@ -1,5 +1,6 @@
 import Request from './luch-request/index.js'
 import baseUrl from './getBaseUrl.js'
+import store from "@/store"
 
 //创建实例
 const service = new Request({
@@ -8,8 +9,13 @@ const service = new Request({
 
 //request拦截器
 service.interceptors.request.use(config => {
-	//TODO: 给所有请求加上token
-
+	// if(store.state.vuex_user.is_login){
+		config.header['Authorization'] = store.state.vuex_token // 让每个请求携带自定义token 请根据实际情况自行修改
+		// config.header = {
+		// 	'Authorization': store.state.vuex_token // 让每个请求携带自定义token 请根据实际情况自行修改
+		// }
+	// }
+	console.log(config);
 	return config
 }, error => {
 	//请求出错执行
@@ -29,7 +35,7 @@ service.interceptors.response.use(response => {
 			console.log("用户未登录");
 		}
 
-		return Promise.reject('error')
+		return Promise.reject(res)
 	} else {
 		return response.data
 	}
