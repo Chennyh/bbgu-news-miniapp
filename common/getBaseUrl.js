@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'development') {
 	baseUrl = "http://192.168.123.92:8080"
 } else if (process.env.NODE_ENV === 'production') {
 	//正式环境
-	baseUrl = "http://api.chennyh.com"
+	baseUrl = "https://api.chennyh.com/bbgu"
 }
 
 export default baseUrl
