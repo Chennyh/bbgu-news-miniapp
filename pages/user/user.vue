@@ -2,18 +2,12 @@
 	<view class="content">
 		<view class="user">
 			<u-avatar @click="avatarClick" class="avatar" :src="avatarUrl" size="large" />
-			<view @click="onLogin" class="name">{{ nickName }}</view>
+			<button plain="true" type="default" open-type="getUserInfo" class="name" @getuserinfo="avatarClick">{{ nickName }}</button>
 		</view>
 		<u-gap height="10" bg-color="#f3f4f6" />
 		<view class="collect">
 			<view class="title">我的收藏</view>
 			<u-empty :show="emptyShow" margin-top="100" iconSize="400" text="您还没有收藏的内容" src="/static/no-collection.png" />
-
-			<!-- <scroll-view scroll-y="true" :style="{ height: scrollViewHeight + 'rpx' }">
-				<view>1111</view>
-				<view>2222</view>
-			</scroll-view> -->
-
 		</view>
 		<u-top-tips ref="showTips" />
 		<u-action-sheet @click="actionSheetClick" :tips="actionSheetTips" :list="actionSheetList" v-model="actionSheetShow"></u-action-sheet>
@@ -62,71 +56,107 @@
 				this.avatarUrl = this.$store.state.vuex_user.avatar_url
 			}
 		},
-		computed: {
-			scrollViewHeight: function() {
-				let sys = uni.getSystemInfoSync();
-				let winWidth = sys.windowWidth;
-				let winrate = 750 / winWidth;
-				let winHeight = parseInt((sys.windowHeight - 100) * winrate)
-				return winHeight
-			}
-		},
 		methods: {
 			avatarClick() {
-				if (this.$store.state.vuex_user.is_login) {
-					this.actionSheetShow = true
-				} else {
-					this.onLogin()
-				}
+				uni.getSetting({
+					success: (result) => {
+						// console.log(result);
+						if (result.authSetting["scope.userInfo"]) {
+							if (this.$store.state.vuex_user.is_login) {
+								this.actionSheetShow = true
+							} else {
+								this.onLogin()
+							}
+						} else {
+							this.tipsTitle = "请允许小程序获取用户信息！"
+							this.tipsType = "error"
+							this.showTips()
+						}
+					}
+				})
 			},
-			async onLogin() {
+			async onLogin(isUpdate) {
+				if (isUpdate === null) {
+					isUpdate = false;
+				}
+
 				uni.showLoading({
-					title: "登录中..."
+					title: isUpdate ? "更新中..." : "登录中..."
 				})
 
 				let promise = new Promise((resolve, reject) => {
-					uni.login({
-						success: (res) => {
-							// console.log(res);
-							this.userWxInfo.code = res.code
+					if (!isUpdate) {
+						uni.login({
+							success: (res) => {
+								// console.log(res);
+								this.userWxInfo.code = res.code
 
-							uni.getUserInfo({
-								withCredentials: true,
-								success: (res) => {
-									// console.log(res);
-									this.userWxInfo.encryptedData = res.encryptedData
-									this.userWxInfo.rawData = res.rawData
-									this.userWxInfo.signature = res.signature
-									this.userWxInfo.iv = res.iv
+								uni.getUserInfo({
+									withCredentials: true,
+									success: (res) => {
+										// console.log(res);
+										this.userWxInfo.encryptedData = res.encryptedData
+										this.userWxInfo.rawData = res.rawData
+										this.userWxInfo.signature = res.signature
+										this.userWxInfo.iv = res.iv
 
-									login(this.userWxInfo).then(resp => {
-										// console.log(resp);
-										this.tipsTitle = "登录成功！"
-										this.tipsType = "success"
-										this.avatarUrl = res.userInfo.avatarUrl
-										this.nickName = res.userInfo.nickName
+										login(this.userWxInfo).then(resp => {
+											// console.log(resp);
+											this.tipsTitle = "登录成功！"
+											this.tipsType = "success"
+											this.avatarUrl = res.userInfo.avatarUrl
+											this.nickName = res.userInfo.nickName
 
-										this.$u.vuex("vuex_user.nick_name", this.nickName)
-										this.$u.vuex("vuex_user.avatar_url", this.avatarUrl)
-										this.$u.vuex("vuex_user.is_login", true)
-										this.$u.vuex("vuex_token", "Bearer " + resp.data.token)
+											this.$u.vuex("vuex_user.nick_name", this.nickName)
+											this.$u.vuex("vuex_user.avatar_url", this.avatarUrl)
+											this.$u.vuex("vuex_user.is_login", true)
+											this.$u.vuex("vuex_token", "Bearer " + resp.data.token)
 
-										resolve("done!")
-									}).catch(err => {
-										console.log(err);
-										this.tipsTitle = "未知错误"
+											resolve("done!")
+										}).catch(err => {
+											console.log(err);
+											this.tipsTitle = "未知错误"
+											this.tipsType = "error"
+											reject(err)
+										})
+									},
+									fail: (err) => {
+										this.tipsTitle = "登录失败，请允许小程序获取用户信息！"
 										this.tipsType = "error"
-										resolve("done!")
-									})
-								},
-								fail: () => {
-									this.tipsTitle = "登录失败，请允许小程序获取用户信息！"
-									this.tipsType = "error"
+										reject(err)
+									}
+								})
+							}
+						})
+					} else {
+						uni.getUserInfo({
+							success: (res) => {
+								// console.log(res);
+								update(res.userInfo).then(resp => {
+									// console.log(resp);
+									this.tipsTitle = "更新成功！"
+									this.tipsType = "success"
+									this.avatarUrl = res.userInfo.avatarUrl
+									this.nickName = res.userInfo.nickName
+
+									this.$u.vuex("vuex_user.nick_name", this.nickName)
+									this.$u.vuex("vuex_user.avatar_url", this.avatarUrl)
+
 									resolve("done!")
-								}
-							})
-						}
-					})
+								}).catch(err => {
+									console.log(err);
+									this.tipsTitle = err.message
+									this.tipsType = "error"
+									reject(err)
+								})
+							},
+							fail: (err) => {
+								this.tipsTitle = "更新失败，请允许小程序获取用户信息！"
+								this.tipsType = "error"
+								reject(err)
+							}
+						})
+					}
 				})
 
 				let result = await promise;
@@ -136,50 +166,9 @@
 				this.showTips()
 				this.userWxInfo = Object.assign({}, defaultUserWxInfo)
 			},
-			async updateProfile() {
-				uni.showLoading({
-					title: "更新中..."
-				})
-
-				let promise = new Promise((resolve, reject) => {
-					uni.getUserInfo({
-						success: (res) => {
-							// console.log(res);
-							update(res.userInfo).then(resp => {
-								console.log(resp);
-								
-								this.tipsTitle = "更新成功！"
-								this.tipsType = "success"
-								this.avatarUrl = res.userInfo.avatarUrl
-								this.nickName = res.userInfo.nickName
-								
-								this.$u.vuex("vuex_user.nick_name", this.nickName)
-								this.$u.vuex("vuex_user.avatar_url", this.avatarUrl)
-								
-								resolve("done!")
-							}).catch(err => {
-								console.log(err);
-								this.tipsTitle = "未知错误"
-								this.tipsType = "error"
-								resolve("done!")
-							})
-						},
-						fail: () => {
-							this.tipsTitle = "更新失败"
-							this.tipsType = "error"
-							resolve("done!")
-						}
-					})
-				})
-				let result = await promise
-
-				uni.hideLoading()
-				this.showTips()
-				this.userWxInfo = Object.assign({}, defaultUserWxInfo)
-			},
 			actionSheetClick(index) {
 				if (index === 0) {
-					this.updateProfile()
+					this.onLogin(true)
 				} else if (index === 1) {
 					this.$u.vuex("vuex_user.nick_name", '')
 					this.$u.vuex("vuex_user.avatar_url", '')
@@ -188,6 +177,10 @@
 
 					this.avatarUrl = ''
 					this.nickName = "点击登录"
+
+					this.tipsTitle = "已退出登录"
+					this.tipsType = "info"
+					this.showTips()
 				}
 			},
 			showTips() {
@@ -223,6 +216,7 @@
 		margin-bottom: 50rpx;
 		font-size: medium;
 		color: $u-content-color;
+		border: none;
 	}
 
 	.content .collect {

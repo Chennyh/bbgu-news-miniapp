@@ -1,70 +1,126 @@
 <template>
-	<view class="content">
-		<image class="logo" src="/static/index-selected.png"></image>
-		<view class="text-area">
-			<text class="title">
-				uView - 多平台快速开发的UI框架
-			</text>
+	<view class="wrap" v-if="vuex_user.is_login">
+		<view class="u-tabs-box">
+			<u-tabs-swiper ref="uTabs" :list="tabsList" :current="tabCurrent" @change="tabChange()" />
 		</view>
-		<view class="button-demo">
-			<u-button :ripple="true" @click="onClick">按钮组件演示</u-button>
-		</view>
-		<view class="link-demo">
-			<u-link :color="$u.color['primary']" :under-line="true" href="http://www.uviewui.com">跳转uView文档：www.uviewui.com</u-link>
-		</view>
+		<swiper class="swiper-box" :current="swiperCurrent" @transition="transition" @animationfinish="animationfinish">
+			<swiper-item class="swiper-item" v-for="item in tabsList" :key="item.id">
+				<news-page :categoryId="item.id" ref="page" />
+			</swiper-item>
+		</swiper>
+	</view>
+	<view v-else>
+		<u-empty show="true" margin-top="100" iconSize="400" text="请登录后在查看哦~" src="/static/no-login.png" />
+		<u-button class="login-btn" size="medium" ripple="true" @click="goLogin">去登录</u-button>
 	</view>
 </template>
 
 <script>
+	import {
+		ArticleList,
+		CategoryList
+	} from "@/common/api/news.js"
+	import newsPage from "@/components/news-page.vue"
+
 	export default {
+		components: {
+			newsPage
+		},
 		data() {
 			return {
-				title: 'Hello'
-				
+				tabsList: null,
+				articleList: [],
+				tabCurrent: 0,
+				swiperCurrent: 0,
+				emptyShow: false
 			}
 		},
 		onLoad() {
-
+			if (this.$store.state.vuex_user.is_login) {
+				this.getTabsList()
+			}
+			
+		},
+		onReady() {
+			// if (this.$store.state.vuex_user.is_login) {
+			// 	setTimeout(() => {
+			// 		if(this.$refs.page[this.tabCurrent].articleList.length === 0){
+			// 			this.$refs.page[this.tabCurrent].refresh()
+			// 		}
+			// 	}, 500)
+			// }
+		},
+		onShow() {
+			if (this.$store.state.vuex_user.is_login) {
+				if (this.tabsList === null) {
+					this.getTabsList()
+				}
+				setTimeout(() => {
+					if (this.$refs.page[this.tabCurrent].articleList.length === 0) {
+						this.$refs.page[this.tabCurrent].refresh()
+					}
+				}, 500)
+			}
 		},
 		methods: {
-
+			getTabsList() {
+				CategoryList().then(resp => {
+					// console.log(resp);
+					this.tabsList = resp.data
+				}).catch(err => {
+					// console.log(err);
+				})
+			},
+			tabChange(index) {
+				this.swiperCurrent = index
+			},
+			goLogin() {
+				uni.switchTab({
+					url: "/pages/user/user"
+				})
+			},
+			transition({
+				detail: {
+					dx
+				}
+			}) {
+				this.$refs.uTabs.setDx(dx);
+			},
+			animationfinish({
+				detail: {
+					current
+				}
+			}) {
+				this.$refs.uTabs.setFinishCurrent(current);
+				this.swiperCurrent = current;
+				this.tabCurrent = current;
+				if (this.$refs.page[current].articleList.length === 0) {
+					this.$refs.page[current].refresh()
+				}
+			}
 		}
 	}
 </script>
 
 <style lang="scss" scoped>
-	.content {
+	.wrap {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 40rpx;
+		height: calc(100vh - var(--window-top));
+		width: 100%;
 	}
 
-	.logo {
-		height: 200rpx;
-		width: 200rpx;
-		margin-top: 100rpx;
-		margin-left: auto;
-		margin-right: auto;
-		margin-bottom: 50rpx;
+	.swiper-box {
+		flex: 1;
 	}
 
-	.text-area {
+	.swiper-item {
+		height: 100%;
+	}
+
+	.login-btn {
 		display: flex;
-		justify-content: center;
-	}
-
-	.title {
-		font-size: 28rpx;
-		color: $u-content-color;
-	}
-
-	.button-demo {
-		margin-top: 80rpx;
-	}
-
-	.link-demo {
-		margin-top: 80rpx;
+		flex-direction: column;
+		margin-top: 30rpx;
 	}
 </style>
