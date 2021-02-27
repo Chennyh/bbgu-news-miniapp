@@ -8,7 +8,7 @@
 		<view class="collect">
 			<view class="label">我的收藏</view>
 			<u-empty :show="emptyShow" margin-top="100" iconSize="400" text="您还没有收藏的内容" src="/static/no-collection.png" />
-			<scroll-view scroll-y enable-back-to-top :style="{'height': scrollHeight + 'rpx;'}">
+			<scroll-view scroll-y enable-back-to-top :style="{'height': 'calc(100vh - ' + scrollHeight + 'rpx)'}">
 				<u-swipe-action v-for="(item, index) in collectList" :key="item.id" :show="item.show" :index="index" :options="swiperOption"
 				 @click="swiperClick" @open="swiperOpen" @content-click="swiperContentClick">
 					<view class="item u-border-bottom">
@@ -94,8 +94,8 @@
 			uni.getSystemInfo({
 				success: (sys) => {
 					let winHeight = parseInt(sys.windowHeight * sys.pixelRatio)
-					let tabbarHeight = parseInt(sys.screenHeight - sys.windowHeight - sys.statusBarHeight)
-					console.log(tabbarHeight);
+					let tabbarHeight = parseInt(sys.screenHeight - sys.windowHeight - sys.statusBarHeight) 
+					// console.log(tabbarHeight);
 
 					const query = uni.createSelectorQuery()
 					query.select(".user").boundingClientRect()
@@ -106,8 +106,9 @@
 						data.forEach(element => {
 							height += element.height
 						})
-						// height *= 2
-						_this.scrollHeight = (sys.windowHeight - tabbarHeight - height ) * sys.pixelRatio
+						height *= 2
+						// _this.scrollHeight = (sys.windowHeight - tabbarHeight - height ) * sys.pixelRatio
+						_this.scrollHeight = height
 					})
 				}
 			})
@@ -325,11 +326,6 @@
 		font-size: medium;
 		font-weight: bold;
 		border-left: 8rpx solid $u-type-primary;
-	}
-
-	.content .collect .scrollView {
-		height: calc(100vh - var(--window-bottom));
-		;
 	}
 
 	.content .collect .item {
