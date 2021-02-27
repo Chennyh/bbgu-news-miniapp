@@ -2,7 +2,7 @@
 	<view>
 		<u-card :show-head="false" @click="click">
 			<view slot="body">
-				<text class="u-line-1">{{newItem.title}}</text>
+				<text class="u-line-2">{{newItem.title}}</text>
 			</view>
 			<view slot="foot">
 				<u-icon name="account" size="34" :label="newItem.username"></u-icon>

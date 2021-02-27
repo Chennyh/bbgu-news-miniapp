@@ -59,7 +59,7 @@
 					if (this.$refs.page[this.tabCurrent].articleList.length === 0) {
 						this.$refs.page[this.tabCurrent].refresh()
 					}
-				}, 500)
+				}, 1000)
 			}
 		},
 		methods: {

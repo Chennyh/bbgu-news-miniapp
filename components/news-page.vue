@@ -1,7 +1,7 @@
 <template>
 	<view class="wrap">
-		<scroll-view scroll-y enable-back-to-top refresher-enabled refresher-threshold="100" @refresherrefresh="onRefresher" :refresher-triggered="triggered"
-		 :style="{'height':scrollH + 'rpx'}">
+		<scroll-view scroll-y enable-back-to-top refresher-enabled refresher-threshold="100" @refresherrefresh="onRefresher"
+		 :refresher-triggered="triggered" :style="{'height':scrollH + 'rpx;'}">
 			<view class="page-box">
 				<u-empty :show="emptyShow" margin-top="150" iconSize="500" text="暂时还没有新闻哦~" src="/static/no-news.png" />
 				<view class="new" v-for="(item, index) in articleList" :key="index">
@@ -38,6 +38,15 @@
 				return winHeight - tabbarHeight + 10
 			}
 		},
+		watch: {
+			articleList: function(newList, oldList) {
+				if (newList.length > 0) {
+					this.emptyShow = false
+				} else {
+					this.emptyShow = true
+				}
+			}
+		},
 		data() {
 			return {
 				articleList: [],
@@ -62,11 +71,9 @@
 							this.toastType = "primary"
 						}
 						this.articleList = _articleList
-						this.emptyShow = false
 						resolve("done!")
 					}).catch(err => {
 						this.articleList = []
-						this.emptyShow = true
 						resolve("done!")
 					})
 				})

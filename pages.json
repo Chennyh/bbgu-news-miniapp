@@ -8,7 +8,7 @@
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "湾大新闻",
-				"disableScroll": false,
+				"disableScroll": true,
 				"enablePullDownRefresh": false
 			}
 		},
@@ -55,7 +55,7 @@
 		}]
 	},
 	"condition": {
-		"current": 2,
+		"current": 0,
 		"list": [{
 				"name": "首页",
 				"path": "pages/index/index"
@@ -67,7 +67,7 @@
 			{
 				"name": "详情",
 				"path": "pages/detail/detail",
-				"query": "query=58"
+				"query": "query=5"
 			}
 		]
 	}
