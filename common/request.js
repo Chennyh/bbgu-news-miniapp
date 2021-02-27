@@ -20,7 +20,6 @@ service.interceptors.request.use(config => {
 	return Promise.reject(error)
 })
 
-//response拦截器
 service.interceptors.response.use(async (response) => {
 	const res = response.data
 	if (res.code !== 200) {
@@ -34,24 +33,17 @@ service.interceptors.response.use(async (response) => {
 		//401 用户未登录
 		if (res.code === 401) {
 			if (store.state.vuex_user.is_login) {
-				// console.log("refreshToken");
-				// let req = await service.request({
-				// 	method: 'GET',
-				// 	url: '/user/refreshToken'
-				// })
-				// if (req) {
-				// 	this.$u.vuex("vuex_token", "Bearer " + resp.data.token)
-				// }
+				//toekn过期处理 , TODO:添加无感刷新功能
+				console.log("toekn过期");
+				uni.showToast({
+					title: "token已过期，请重新登录！",
+					icon: "none"
+				})
 			} else {
 				console.log("用户未登录");
 				uni.showToast({
 					title: "用户未登录，请先登录！",
-					icon: "none",
-					complete: () => {
-						uni.switchTab({
-							url: "/pages/user/user.vue"
-						})
-					}
+					icon: "none"
 				})
 			}
 		}
